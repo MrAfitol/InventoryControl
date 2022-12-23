@@ -1,6 +1,8 @@
 ﻿namespace InventoryControl
 {
     using InventorySystem;
+    using InventorySystem.Items.Firearms;
+    using InventorySystem.Items.Firearms.Attachments;
     using MEC;
     using PlayerRoles;
     using PluginAPI.Core;
@@ -54,7 +56,24 @@
                         {
                             foreach (var Item in RoleInventory.Value)
                             {
-                                if (Item.Value >= Random.Range(0, 101)) player.ReferenceHub.inventory.ServerAddItem(Item.Key);
+                                if (Item.Value >= Random.Range(0, 101))
+                                {
+                                    var itemBase = player.ReferenceHub.inventory.ServerAddItem(Item.Key);
+
+                                    if (itemBase is Firearm firearm)
+                                    {
+                                        if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(player.ReferenceHub, out var value) && value.TryGetValue(itemBase.ItemTypeId, out var value2))
+                                        {
+                                            firearm.ApplyAttachmentsCode(value2, reValidate: true);
+                                        }
+                                        FirearmStatusFlags firearmStatusFlags = FirearmStatusFlags.MagazineInserted;
+                                        if (firearm.HasAdvantageFlag(AttachmentDescriptiveAdvantages.Flashlight))
+                                        {
+                                            firearmStatusFlags |= FirearmStatusFlags.FlashlightEnabled;
+                                        }
+                                        firearm.Status = new FirearmStatus(firearm.AmmoManagerModule.MaxAmmo, firearmStatusFlags, firearm.GetCurrentAttachmentsCode());
+                                    }
+                                }
                             }
                         }
                     }
