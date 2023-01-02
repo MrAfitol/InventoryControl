@@ -65,7 +65,7 @@
                 {
                     Log.Error("[InventoryControl] [Event: OnChangeRole] " + e.ToString());
                 }
-            });
+           });
         }
     }
 }
