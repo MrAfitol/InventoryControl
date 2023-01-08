@@ -23,15 +23,49 @@ A plugin that will allow you to control the inventory of various roles
 # List of roles, their items, and chance (Do not add a role if you want its inventory to be normal)
 inventory:
   ClassD:
-    KeycardJanitor: 35
-    Painkillers: 80
-    Coin: 100
+    keep_items: false
+    items:
+      KeycardJanitor: 35
+      Painkillers: 80
+      Coin: 100
+  Scientist:
+    keep_items: true
+    items:
+      Flashlight: 100
+      Coin: 90
+# List of ranks and their roles items and chances
+inventory_rank:
+  owner:
+    ClassD:
+      keep_items: false
+      items:
+        KeycardScientist: 80
+        GunCOM18: 60
+        Painkillers: 100
+        Coin: 100
+    Scientist:
+      keep_items: true
+      items:
+        GunCOM18: 85
+        SCP500: 70
+        Flashlight: 100
+        Coin: 90
 ```
 
 
 ```
 RoleType:
-   ItemType: Chance
+   keep_items: true / false
+   items:
+      ItemType: Chance
+```
+
+```
+RankName:
+   RoleType:
+      keep_items: true / false
+      items:
+         ItemType: Chance
 ```
 
 ## Types
