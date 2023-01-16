@@ -20,8 +20,10 @@
         [PluginEvent(ServerEventType.PlayerChangeRole)]
         public void OnChangeRole(Player player, PlayerRoleBase oldRole, RoleTypeId newRole, RoleChangeReason reason)
         {
-            if (InventoryControl.Instance.Config.InventoryRank.ContainsKey(ServerStatic.GetPermissionsHandler()._groups.First(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key))
-            { SetRankRoleItem(player, newRole); return; }
+            if (player == null) return;
+
+            if (InventoryControl.Instance.Config.InventoryRank.ContainsKey(GetPlayerGroupName(player)))
+            { SetRankRoleItem(player, newRole, GetPlayerGroupName(player)); return; }
 
             if (InventoryControl.Instance.Config.Inventory.ContainsKey(newRole)) SetRoleItem(player, newRole);
         }
@@ -75,7 +77,7 @@
             });
         }
 
-        private void SetRankRoleItem(Player player, RoleTypeId newRole)
+        private void SetRankRoleItem(Player player, RoleTypeId newRole, string groupName)
         {
             Timing.CallDelayed(0.1f, () =>
             {
@@ -83,7 +85,7 @@
                 {
                     if (InventoryControl.Instance.Config.InventoryRank.ContainsKey(ServerStatic.PermissionsHandler._members[player.UserId]))
                     {
-                        if (!InventoryControl.Instance.Config.InventoryRank[ServerStatic.GetPermissionsHandler()._groups.First(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key].ContainsKey(player.Role)) return;
+                        if (!InventoryControl.Instance.Config.InventoryRank[groupName].ContainsKey(player.Role)) return;
 
                         Dictionary<ItemType, ushort> Ammo2 = new Dictionary<ItemType, ushort>();
 
@@ -129,6 +131,18 @@
                     Log.Error("[InventoryControl] [Event: OnChangeRole] " + e.ToString());
                 }
             });
+        }
+
+        private string GetPlayerGroupName(Player player)
+        {
+            if (ServerStatic.PermissionsHandler._members.ContainsKey(player.UserId))
+            {
+                return ServerStatic.PermissionsHandler._members[player.UserId];
+            }
+            else
+            {
+                return player.ReferenceHub.serverRoles.Group != null ? ServerStatic.GetPermissionsHandler()._groups.FirstOrDefault(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key : string.Empty;
+            }
         }
 
         private bool EqualsTo(UserGroup check, UserGroup player)
