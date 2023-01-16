@@ -40,18 +40,18 @@
                         Ammo.Add(item.Key, item.Value);
 
                     for (int ammo = 0; ammo < player.ReferenceHub.inventory.UserInventory.ReserveAmmo.Count; ammo++)
-                        player.ReferenceHub.inventory.ServerSetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
+                        player.SetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
 
-                    KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Instance.Config.Inventory.FirstOrDefault(x => x.Key == newRole);
+                    KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Instance.Config.Inventory.First(x => x.Key == newRole);
 
                     if (!RoleInventory.Value.keepItems)
                         for (int item = 0; player.ReferenceHub.inventory.UserInventory.Items.Count > 0; item++)
-                            player.ReferenceHub.inventory.ServerRemoveItem(player.ReferenceHub.inventory.UserInventory.Items.ElementAt(0).Key, null);
+                            player.RemoveItem(player.ReferenceHub.inventory.UserInventory.Items.ElementAt(0).Value.PickupDropModel);
 
                     foreach (KeyValuePair<ItemType, int> Item in RoleInventory.Value.Items)
                         if (Item.Value >= Random.Range(0, 101))
                         {
-                            ItemBase itemBase = player.ReferenceHub.inventory.ServerAddItem(Item.Key);
+                            ItemBase itemBase = player.AddItem(Item.Key);
 
                             if (itemBase is Firearm firearm)
                             {
@@ -68,7 +68,7 @@
 
                     for (int ammo = 0; ammo < Ammo.Count; ammo++)
                         if (Ammo.ElementAt(ammo).Value > 0)
-                            player.ReferenceHub.inventory.ServerSetAmmo(Ammo.ElementAt(ammo).Key, Ammo.ElementAt(ammo).Value);
+                            player.SetAmmo(Ammo.ElementAt(ammo).Key, Ammo.ElementAt(ammo).Value);
                 }
                 catch (Exception e)
                 {
@@ -93,19 +93,19 @@
                             Ammo2.Add(item.Key, item.Value);
 
                         for (int ammo = 0; ammo < player.ReferenceHub.inventory.UserInventory.ReserveAmmo.Count; ammo++)
-                            player.ReferenceHub.inventory.ServerSetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
+                            player.SetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
 
                         foreach (KeyValuePair<RoleTypeId, InventoryItem> RoleInventory in InventoryControl.Instance.Config.InventoryRank[ServerStatic.PermissionsHandler._members[player.UserId]])
                             if (RoleInventory.Key == newRole)
                             {
                                 if (!RoleInventory.Value.keepItems)
                                     for (int item = 0; player.ReferenceHub.inventory.UserInventory.Items.Count > 0; item++)
-                                        player.ReferenceHub.inventory.ServerRemoveItem(player.ReferenceHub.inventory.UserInventory.Items.ElementAt(0).Key, null);
+                                        player.RemoveItem(player.ReferenceHub.inventory.UserInventory.Items.ElementAt(0).Value.PickupDropModel);
 
                                 foreach (KeyValuePair<ItemType, int> Item in RoleInventory.Value.Items)
                                     if (Item.Value >= Random.Range(0, 101))
                                     {
-                                        ItemBase itemBase = player.ReferenceHub.inventory.ServerAddItem(Item.Key);
+                                        ItemBase itemBase = player.AddItem(Item.Key);
 
                                         if (itemBase is Firearm firearm)
                                         {
@@ -123,7 +123,7 @@
 
                         for (int ammo = 0; ammo < Ammo2.Count; ammo++)
                             if (Ammo2.ElementAt(ammo).Value > 0)
-                                player.ReferenceHub.inventory.ServerSetAmmo(Ammo2.ElementAt(ammo).Key, Ammo2.ElementAt(ammo).Value);
+                                player.SetAmmo(Ammo2.ElementAt(ammo).Key, Ammo2.ElementAt(ammo).Value);
                     }
                 }
                 catch (Exception e)
@@ -141,7 +141,7 @@
             }
             else
             {
-                return player.ReferenceHub.serverRoles.Group != null ? ServerStatic.GetPermissionsHandler()._groups.FirstOrDefault(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key : string.Empty;
+                return player.ReferenceHub.serverRoles.Group != null ? ServerStatic.GetPermissionsHandler()._groups.First(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key : string.Empty;
             }
         }
 
