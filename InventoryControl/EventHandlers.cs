@@ -20,7 +20,7 @@
         [PluginEvent(ServerEventType.PlayerChangeRole)]
         public void OnChangeRole(Player player, PlayerRoleBase oldRole, RoleTypeId newRole, RoleChangeReason reason)
         {
-            if (InventoryControl.Instance.Config.InventoryRank.ContainsKey(ServerStatic.GetPermissionsHandler()._groups.FirstOrDefault(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key))
+            if (InventoryControl.Instance.Config.InventoryRank.ContainsKey(ServerStatic.GetPermissionsHandler()._groups.First(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key))
             { SetRankRoleItem(player, newRole); return; }
 
             if (InventoryControl.Instance.Config.Inventory.ContainsKey(newRole)) SetRoleItem(player, newRole);
@@ -83,7 +83,7 @@
                 {
                     if (InventoryControl.Instance.Config.InventoryRank.ContainsKey(ServerStatic.PermissionsHandler._members[player.UserId]))
                     {
-                        if (!InventoryControl.Instance.Config.InventoryRank[ServerStatic.GetPermissionsHandler()._groups.FirstOrDefault(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key].ContainsKey(player.Role)) return;
+                        if (!InventoryControl.Instance.Config.InventoryRank[ServerStatic.GetPermissionsHandler()._groups.First(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key].ContainsKey(player.Role)) return;
 
                         Dictionary<ItemType, ushort> Ammo2 = new Dictionary<ItemType, ushort>();
 
