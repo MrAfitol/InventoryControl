@@ -1,9 +1,8 @@
-﻿using PlayerRoles;
-using System.Collections.Generic;
-using System.ComponentModel;
-
-namespace InventoryControl
+﻿namespace InventoryControl
 {
+    using PlayerRoles;
+    using System.Collections.Generic;
+    using System.ComponentModel;
 
     public class Config
     {

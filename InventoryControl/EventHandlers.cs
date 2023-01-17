@@ -1,6 +1,5 @@
 ﻿namespace InventoryControl
 {
-    using InventorySystem;
     using InventorySystem.Items;
     using InventorySystem.Items.Firearms;
     using InventorySystem.Items.Firearms.Attachments;
@@ -20,12 +19,21 @@
         [PluginEvent(ServerEventType.PlayerChangeRole)]
         public void OnChangeRole(Player player, PlayerRoleBase oldRole, RoleTypeId newRole, RoleChangeReason reason)
         {
-            if (player == null) return;
+            try
+            {
+                if (player == null || !Round.IsRoundStarted) return;
 
-            if (InventoryControl.Instance.Config.InventoryRank.ContainsKey(GetPlayerGroupName(player)))
-            { SetRankRoleItem(player, newRole, GetPlayerGroupName(player)); return; }
+                if (InventoryControl.Instance.Config.InventoryRank?.Count > 0)
+                    if (InventoryControl.Instance.Config.InventoryRank.ContainsKey(GetPlayerGroupName(player)))
+                        { SetRankRoleItem(player, newRole, GetPlayerGroupName(player)); return; }
 
-            if (InventoryControl.Instance.Config.Inventory.ContainsKey(newRole)) SetRoleItem(player, newRole);
+                if (InventoryControl.Instance.Config.Inventory?.Count > 0)
+                    if (InventoryControl.Instance.Config.Inventory.ContainsKey(newRole)) SetRoleItem(player, newRole);
+            }
+            catch (Exception e)
+            {
+                Log.Error("[InventoryControl] [Event: OnChangeRole] " + e.ToString());
+            }
         }
 
         private void SetRoleItem(Player player, RoleTypeId newRole)
@@ -72,7 +80,7 @@
                 }
                 catch (Exception e)
                 {
-                    Log.Error("[InventoryControl] [Event: OnChangeRole] " + e.ToString());
+                    Log.Error("[InventoryControl] [Event: SetRoleItem] " + e.ToString());
                 }
             });
         }
@@ -128,7 +136,7 @@
                 }
                 catch (Exception e)
                 {
-                    Log.Error("[InventoryControl] [Event: OnChangeRole] " + e.ToString());
+                    Log.Error("[InventoryControl] [Event: SetRankRoleItem] " + e.ToString());
                 }
             });
         }
