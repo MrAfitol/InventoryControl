@@ -42,19 +42,15 @@
             {
                 try
                 {
-                    Dictionary<ItemType, ushort> Ammo = new Dictionary<ItemType, ushort>();
+                    Dictionary<ItemType, ushort> Ammos = new Dictionary<ItemType, ushort>();
 
-                    foreach (KeyValuePair<ItemType, ushort> item in player.ReferenceHub.inventory.UserInventory.ReserveAmmo)
-                        Ammo.Add(item.Key, item.Value);
-
-                    for (int ammo = 0; ammo < player.ReferenceHub.inventory.UserInventory.ReserveAmmo.Count; ammo++)
-                        player.SetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
+                    Ammos = player.AmmoBag;
+                    player.ClearInventory(true, false);
 
                     KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Instance.Config.Inventory.First(x => x.Key == newRole);
 
                     if (!RoleInventory.Value.keepItems)
-                        for (int item = 0; player.ReferenceHub.inventory.UserInventory.Items.Count > 0; item++)
-                            player.RemoveItem(player.ReferenceHub.inventory.UserInventory.Items.ElementAt(0).Value.PickupDropModel);
+                        player.ClearInventory(false);
 
                     foreach (KeyValuePair<ItemType, int> Item in RoleInventory.Value.Items)
                         if (Item.Value >= Random.Range(0, 101))
@@ -74,9 +70,9 @@
                             }
                         }
 
-                    for (int ammo = 0; ammo < Ammo.Count; ammo++)
-                        if (Ammo.ElementAt(ammo).Value > 0)
-                            player.SetAmmo(Ammo.ElementAt(ammo).Key, Ammo.ElementAt(ammo).Value);
+                    for (int ammo = 0; ammo < Ammos.Count; ammo++)
+                        if (Ammos.ElementAt(ammo).Value > 0)
+                            player.SetAmmo(Ammos.ElementAt(ammo).Key, Ammos.ElementAt(ammo).Value);
                 }
                 catch (Exception e)
                 {
@@ -95,43 +91,37 @@
                     {
                         if (!InventoryControl.Instance.Config.InventoryRank[groupName].ContainsKey(player.Role)) return;
 
-                        Dictionary<ItemType, ushort> Ammo2 = new Dictionary<ItemType, ushort>();
+                        Dictionary<ItemType, ushort> Ammos = new Dictionary<ItemType, ushort>();
 
-                        foreach (KeyValuePair<ItemType, ushort> item in player.ReferenceHub.inventory.UserInventory.ReserveAmmo)
-                            Ammo2.Add(item.Key, item.Value);
+                        Ammos = player.AmmoBag;
+                        player.ClearInventory(true, false);
 
-                        for (int ammo = 0; ammo < player.ReferenceHub.inventory.UserInventory.ReserveAmmo.Count; ammo++)
-                            player.SetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
+                        KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Instance.Config.InventoryRank[ServerStatic.PermissionsHandler._members[player.UserId]].First(x => x.Key == newRole);
 
-                        foreach (KeyValuePair<RoleTypeId, InventoryItem> RoleInventory in InventoryControl.Instance.Config.InventoryRank[ServerStatic.PermissionsHandler._members[player.UserId]])
-                            if (RoleInventory.Key == newRole)
+                        if (!RoleInventory.Value.keepItems)
+                            player.ClearInventory(false);
+
+                        foreach (KeyValuePair<ItemType, int> Item in RoleInventory.Value.Items)
+                            if (Item.Value >= Random.Range(0, 101))
                             {
-                                if (!RoleInventory.Value.keepItems)
-                                    for (int item = 0; player.ReferenceHub.inventory.UserInventory.Items.Count > 0; item++)
-                                        player.RemoveItem(player.ReferenceHub.inventory.UserInventory.Items.ElementAt(0).Value.PickupDropModel);
+                                ItemBase itemBase = player.AddItem(Item.Key);
 
-                                foreach (KeyValuePair<ItemType, int> Item in RoleInventory.Value.Items)
-                                    if (Item.Value >= Random.Range(0, 101))
-                                    {
-                                        ItemBase itemBase = player.AddItem(Item.Key);
+                                if (itemBase is Firearm firearm)
+                                {
+                                    if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(player.ReferenceHub, out var value) && value.TryGetValue(itemBase.ItemTypeId, out var value2))
+                                        firearm.ApplyAttachmentsCode(value2, reValidate: true);
 
-                                        if (itemBase is Firearm firearm)
-                                        {
-                                            if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(player.ReferenceHub, out var value) && value.TryGetValue(itemBase.ItemTypeId, out var value2))
-                                                firearm.ApplyAttachmentsCode(value2, reValidate: true);
+                                    FirearmStatusFlags firearmStatusFlags = FirearmStatusFlags.MagazineInserted;
+                                    if (firearm.HasAdvantageFlag(AttachmentDescriptiveAdvantages.Flashlight))
+                                        firearmStatusFlags |= FirearmStatusFlags.FlashlightEnabled;
 
-                                            FirearmStatusFlags firearmStatusFlags = FirearmStatusFlags.MagazineInserted;
-                                            if (firearm.HasAdvantageFlag(AttachmentDescriptiveAdvantages.Flashlight))
-                                                firearmStatusFlags |= FirearmStatusFlags.FlashlightEnabled;
-
-                                            firearm.Status = new FirearmStatus(firearm.AmmoManagerModule.MaxAmmo, firearmStatusFlags, firearm.GetCurrentAttachmentsCode());
-                                        }
-                                    }
+                                    firearm.Status = new FirearmStatus(firearm.AmmoManagerModule.MaxAmmo, firearmStatusFlags, firearm.GetCurrentAttachmentsCode());
+                                }
                             }
 
-                        for (int ammo = 0; ammo < Ammo2.Count; ammo++)
-                            if (Ammo2.ElementAt(ammo).Value > 0)
-                                player.SetAmmo(Ammo2.ElementAt(ammo).Key, Ammo2.ElementAt(ammo).Value);
+                        for (int ammo = 0; ammo < Ammos.Count; ammo++)
+                            if (Ammos.ElementAt(ammo).Value > 0)
+                                player.SetAmmo(Ammos.ElementAt(ammo).Key, Ammos.ElementAt(ammo).Value);
                     }
                 }
                 catch (Exception e)
@@ -143,13 +133,23 @@
 
         private string GetPlayerGroupName(Player player)
         {
-            if (ServerStatic.PermissionsHandler._members.ContainsKey(player.UserId))
+            try
             {
-                return ServerStatic.PermissionsHandler._members[player.UserId];
+                if (player.UserId == null) return string.Empty;
+
+                if (ServerStatic.PermissionsHandler._members.ContainsKey(player.UserId))
+                {
+                    return ServerStatic.PermissionsHandler._members[player.UserId];
+                }
+                else
+                {
+                    return player.ReferenceHub.serverRoles.Group != null ? ServerStatic.GetPermissionsHandler()._groups.FirstOrDefault(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key : string.Empty;
+                }
             }
-            else
+            catch (Exception e)
             {
-                return player.ReferenceHub.serverRoles.Group != null ? ServerStatic.GetPermissionsHandler()._groups.First(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key : string.Empty;
+                Log.Error("[InventoryControl] [Event: GetPlayerGroupName] " + e.ToString());
+                return string.Empty;
             }
         }
 
