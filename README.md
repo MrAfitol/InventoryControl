@@ -144,5 +144,7 @@ SCP244a,
 SCP244b,
 SCP1853,
 ParticleDisruptor,
-GunCom45
+GunCom45,
+SCP1576,
+Jailbird
 ```
