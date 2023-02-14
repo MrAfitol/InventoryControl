@@ -44,8 +44,11 @@
                 {
                     Dictionary<ItemType, ushort> Ammos = new Dictionary<ItemType, ushort>();
 
-                    Ammos = player.AmmoBag;
-                    player.ClearInventory(true, false);
+                    foreach (KeyValuePair<ItemType, ushort> item in player.ReferenceHub.inventory.UserInventory.ReserveAmmo)
+                        Ammos.Add(item.Key, item.Value);
+
+                    for (int ammo = 0; ammo < player.ReferenceHub.inventory.UserInventory.ReserveAmmo.Count; ammo++)
+                        player.SetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
 
                     KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Instance.Config.Inventory.First(x => x.Key == newRole);
 
@@ -93,8 +96,11 @@
 
                         Dictionary<ItemType, ushort> Ammos = new Dictionary<ItemType, ushort>();
 
-                        Ammos = player.AmmoBag;
-                        player.ClearInventory(true, false);
+                        foreach (KeyValuePair<ItemType, ushort> item in player.ReferenceHub.inventory.UserInventory.ReserveAmmo)
+                            Ammos.Add(item.Key, item.Value);
+
+                        for (int ammo = 0; ammo < player.ReferenceHub.inventory.UserInventory.ReserveAmmo.Count; ammo++)
+                            player.SetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
 
                         KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Instance.Config.InventoryRank[ServerStatic.PermissionsHandler._members[player.UserId]].First(x => x.Key == newRole);
 
