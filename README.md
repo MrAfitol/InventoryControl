@@ -2,7 +2,7 @@
 [![GitHub release](https://flat.badgen.net/github/release/MrAfitol/InventoryControl)](https://github.com/MrAfitol/InventoryControl/releases/)
 ![GitHub downloads](https://flat.badgen.net/github/assets-dl/MrAfitol/InventoryControl)
 
-A plugin that will allow you to control the inventory of various roles
+A plugin that allows you to configure the default role inventory
 
 ## How download ?
    - *1. Find the SCP SL server config folder*
