@@ -1,6 +1,6 @@
 # InventoryControl
 [![Version](https://img.shields.io/github/v/release/MrAfitol/InventoryControl?sort=semver&style=flat-square&color=blue&label=Version)](https://github.com/MrAfitol/InventoryControl/releases)
-[![Downloads](https://img.shields.io/github/downloads/MrAfitol/InventoryControl/total?style=flat-square&color=yellow)](https://github.com/MrAfitol/InventoryControl/releases)
+[![Downloads](https://img.shields.io/github/downloads/MrAfitol/InventoryControl/total?style=flat-square&color=yellow&label=Downloads)](https://github.com/MrAfitol/InventoryControl/releases)
 
 A plugin that allows you to configure the default role inventory
 
