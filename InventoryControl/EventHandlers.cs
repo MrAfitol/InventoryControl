@@ -7,7 +7,7 @@
     using PlayerRoles;
     using PluginAPI.Core;
     using PluginAPI.Core.Attributes;
-    using PluginAPI.Enums;
+    using PluginAPI.Events;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -16,19 +16,19 @@
     public class EventHandlers
     {
 
-        [PluginEvent(ServerEventType.PlayerChangeRole)]
-        public void OnChangeRole(Player player, PlayerRoleBase oldRole, RoleTypeId newRole, RoleChangeReason reason)
+        [PluginEvent]
+        public void OnChangeRole(PlayerChangeRoleEvent ev)
         {
             try
             {
-                if (player == null || !Round.IsRoundStarted) return;
+                if (ev.Player == null || !Round.IsRoundStarted) return;
 
-                if (InventoryControl.Instance.Config.InventoryRank?.Count > 0)
-                    if (InventoryControl.Instance.Config.InventoryRank.ContainsKey(GetPlayerGroupName(player)))
-                        { SetRankRoleItem(player, newRole, GetPlayerGroupName(player)); return; }
+                if (InventoryControl.Config.InventoryRank?.Count > 0)
+                    if (InventoryControl.Config.InventoryRank.ContainsKey(GetPlayerGroupName(ev.Player)))
+                        { SetRankRoleItem(ev.Player, ev.NewRole, GetPlayerGroupName(ev.Player)); return; }
 
-                if (InventoryControl.Instance.Config.Inventory?.Count > 0)
-                    if (InventoryControl.Instance.Config.Inventory.ContainsKey(newRole)) SetRoleItem(player, newRole);
+                if (InventoryControl.Config.Inventory?.Count > 0)
+                    if (InventoryControl.Config.Inventory.ContainsKey(ev.NewRole)) SetRoleItem(ev.Player, ev.NewRole);
             }
             catch (Exception e)
             {
@@ -50,7 +50,7 @@
                     for (int ammo = 0; ammo < player.ReferenceHub.inventory.UserInventory.ReserveAmmo.Count; ammo++)
                         player.SetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
 
-                    KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Instance.Config.Inventory.First(x => x.Key == newRole);
+                    KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Config.Inventory.First(x => x.Key == newRole);
 
                     if (!RoleInventory.Value.keepItems)
                         player.ClearInventory(false);
@@ -90,9 +90,9 @@
             {
                 try
                 {
-                    if (InventoryControl.Instance.Config.InventoryRank.ContainsKey(ServerStatic.PermissionsHandler._members[player.UserId]))
+                    if (InventoryControl.Config.InventoryRank.ContainsKey(ServerStatic.PermissionsHandler._members[player.UserId]))
                     {
-                        if (!InventoryControl.Instance.Config.InventoryRank[groupName].ContainsKey(player.Role)) return;
+                        if (!InventoryControl.Config.InventoryRank[groupName].ContainsKey(player.Role)) return;
 
                         Dictionary<ItemType, ushort> Ammos = new Dictionary<ItemType, ushort>();
 
@@ -102,7 +102,7 @@
                         for (int ammo = 0; ammo < player.ReferenceHub.inventory.UserInventory.ReserveAmmo.Count; ammo++)
                             player.SetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
 
-                        KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Instance.Config.InventoryRank[ServerStatic.PermissionsHandler._members[player.UserId]].First(x => x.Key == newRole);
+                        KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Config.InventoryRank[ServerStatic.PermissionsHandler._members[player.UserId]].First(x => x.Key == newRole);
 
                         if (!RoleInventory.Value.keepItems)
                             player.ClearInventory(false);
