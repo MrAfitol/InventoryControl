@@ -25,10 +25,11 @@
 
                 if (InventoryControl.Config.InventoryRank?.Count > 0)
                     if (InventoryControl.Config.InventoryRank.ContainsKey(GetPlayerGroupName(ev.Player)))
+                        if (InventoryControl.Config.InventoryRank[GetPlayerGroupName(ev.Player)].Count(x => x.Value.RoleTypeId == ev.NewRole) > 0)
                         { SetRankRoleItem(ev.Player, ev.NewRole, GetPlayerGroupName(ev.Player)); return; }
 
                 if (InventoryControl.Config.Inventory?.Count > 0)
-                    if (InventoryControl.Config.Inventory.ContainsKey(ev.NewRole)) SetRoleItem(ev.Player, ev.NewRole);
+                    if (InventoryControl.Config.Inventory.Count(x => x.Value.RoleTypeId == ev.NewRole) > 0) SetRoleItem(ev.Player, ev.NewRole);
             }
             catch (Exception e)
             {
@@ -50,9 +51,9 @@
                     for (int ammo = 0; ammo < player.ReferenceHub.inventory.UserInventory.ReserveAmmo.Count; ammo++)
                         player.SetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
 
-                    KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Config.Inventory.First(x => x.Key == newRole);
+                    KeyValuePair<string, RoleInventory> RoleInventory = InventoryControl.Config.Inventory.Where(x => x.Value.RoleTypeId == newRole).ToList().RandomItem();
 
-                    if (!RoleInventory.Value.keepItems)
+                    if (!RoleInventory.Value.KeepItems)
                         player.ClearInventory(false);
 
                     foreach (KeyValuePair<ItemType, int> Item in RoleInventory.Value.Items)
@@ -92,7 +93,7 @@
                 {
                     if (InventoryControl.Config.InventoryRank.ContainsKey(ServerStatic.PermissionsHandler._members[player.UserId]))
                     {
-                        if (!InventoryControl.Config.InventoryRank[groupName].ContainsKey(player.Role)) return;
+                        if (InventoryControl.Config.InventoryRank[groupName].Count(x => x.Value.RoleTypeId == newRole) <= 0) return;
 
                         Dictionary<ItemType, ushort> Ammos = new Dictionary<ItemType, ushort>();
 
@@ -102,9 +103,9 @@
                         for (int ammo = 0; ammo < player.ReferenceHub.inventory.UserInventory.ReserveAmmo.Count; ammo++)
                             player.SetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
 
-                        KeyValuePair<RoleTypeId, InventoryItem> RoleInventory = InventoryControl.Config.InventoryRank[ServerStatic.PermissionsHandler._members[player.UserId]].First(x => x.Key == newRole);
+                        KeyValuePair<string, RoleInventory> RoleInventory = InventoryControl.Config.InventoryRank[ServerStatic.PermissionsHandler._members[player.UserId]].Where(x => x.Value.RoleTypeId == newRole).ToList().RandomItem();
 
-                        if (!RoleInventory.Value.keepItems)
+                        if (!RoleInventory.Value.KeepItems)
                             player.ClearInventory(false);
 
                         foreach (KeyValuePair<ItemType, int> Item in RoleInventory.Value.Items)

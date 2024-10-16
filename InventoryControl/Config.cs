@@ -7,12 +7,25 @@
     public class Config
     {
         [Description("List of roles, their items, and chance (Do not add a role if you want its inventory to be normal)")]
-        public Dictionary<RoleTypeId, InventoryItem> Inventory { get; set; } = new Dictionary<RoleTypeId, InventoryItem>()
+        public Dictionary<string, RoleInventory> Inventory { get; set; } = new Dictionary<string, RoleInventory>()
         {
             {
-                RoleTypeId.ClassD, new InventoryItem()
+                "DefaultCassD", new RoleInventory()
                 {
-                    keepItems = false,
+                    RoleTypeId = RoleTypeId.ClassD,
+                    KeepItems = false,
+                    Items = new Dictionary<ItemType, int>()
+                    {
+                        { ItemType.Painkillers, 80 },
+                        { ItemType.Coin, 100 }
+                    }
+                }
+            },
+            {
+                "JanitorCassD", new RoleInventory()
+                {
+                    RoleTypeId = RoleTypeId.ClassD,
+                    KeepItems = false,
                     Items = new Dictionary<ItemType, int>()
                     {
                         { ItemType.KeycardJanitor, 35 },
@@ -22,9 +35,10 @@
                 }
             },
             {
-                RoleTypeId.Scientist, new InventoryItem()
+                "DefaultScientist", new RoleInventory()
                 {
-                    keepItems = true,
+                    RoleTypeId = RoleTypeId.Scientist,
+                    KeepItems = true,
                     Items = new Dictionary<ItemType, int>()
                     {
                         { ItemType.Flashlight, 100 },
@@ -35,15 +49,16 @@
         };
 
         [Description("List of ranks and their roles items and chances")]
-        public Dictionary<string, Dictionary<RoleTypeId, InventoryItem>> InventoryRank { get; set; } = new Dictionary<string, Dictionary<RoleTypeId, InventoryItem>>()
+        public Dictionary<string, Dictionary<string, RoleInventory>> InventoryRank { get; set; } = new Dictionary<string, Dictionary<string, RoleInventory>>()
         {
             {
-                "owner", new Dictionary<RoleTypeId, InventoryItem>()
+                "owner", new Dictionary<string, RoleInventory>()
                 {
                     {
-                        RoleTypeId.ClassD, new InventoryItem()
+                        "OwnerCassD", new RoleInventory()
                         {
-                            keepItems = false,
+                            RoleTypeId = RoleTypeId.ClassD,
+                            KeepItems = false,
                             Items = new Dictionary<ItemType, int>()
                             {
                                 { ItemType.KeycardScientist, 80 },
@@ -54,9 +69,10 @@
                         }
                     },
                     {
-                        RoleTypeId.Scientist, new InventoryItem()
+                        "OwnerScientist", new RoleInventory()
                         {
-                            keepItems = true,
+                            RoleTypeId = RoleTypeId.Scientist,
+                            KeepItems = true,
                             Items = new Dictionary<ItemType, int>()
                             {
                                 { ItemType.GunCOM18, 65 },
@@ -71,9 +87,10 @@
         };
     }
 
-    public class InventoryItem
+    public class RoleInventory
     {
-        public bool keepItems { get; set; }
+        public RoleTypeId RoleTypeId { get; set; }
+        public bool KeepItems { get; set; }
         public Dictionary<ItemType, int> Items { get; set; }
     }
 }
