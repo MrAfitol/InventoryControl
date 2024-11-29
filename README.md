@@ -20,52 +20,75 @@ A plugin that allows you to configure the default role inventory
 ## Config
 
 ```yml
-# List of roles, their items, and chance (Do not add a role if you want its inventory to be normal)
+# Custom inventory list for the role. (Do not add a role to the list if you want to leave the role as a regular inventory)
 inventory:
-  ClassD:
+  DefaultCassD:
+    role_type_id: ClassD
+    keep_items: false
+    items:
+      Painkillers: 80
+      Coin: 100
+    ammos: 
+  JanitorCassD:
+    role_type_id: ClassD
     keep_items: false
     items:
       KeycardJanitor: 35
       Painkillers: 80
       Coin: 100
-  Scientist:
+    ammos: 
+  DefaultScientist:
+    role_type_id: Scientist
     keep_items: true
     items:
       Flashlight: 100
       Coin: 90
-# List of ranks and their roles items and chances
+    ammos: 
+# Custom inventory list for players with a rank
 inventory_rank:
   owner:
-    ClassD:
+    OwnerCassD:
+      role_type_id: ClassD
       keep_items: false
       items:
         KeycardScientist: 80
-        GunCOM18: 60
+        GunCOM18: 40
         Painkillers: 100
         Coin: 100
-    Scientist:
+      ammos:
+        Ammo9x19: 30
+    OwnerScientist:
+      role_type_id: Scientist
       keep_items: true
       items:
-        GunCOM18: 85
+        GunCOM18: 65
         SCP500: 70
         Flashlight: 100
         Coin: 90
+      ammos:
+        Ammo9x19: 60
 ```
 
 
 ```
-RoleType:
+InventoryName:
+   role_type_id: RoleType
    keep_items: true / false
    items:
       ItemType: Chance
+   ammos:
+      AmmoType: Amount
 ```
 
 ```
 RankName:
-   RoleType:
+   InventoryName:
+      role_type_id: RoleType
       keep_items: true / false
       items:
          ItemType: Chance
+      ammos:
+         AmmoType: Amount
 ```
 
 ## Types
@@ -147,4 +170,13 @@ ParticleDisruptor,
 GunCom45,
 SCP1576,
 Jailbird
+```
+
+**AmmoType**
+```
+Ammo12gauge,
+Ammo556x45,
+Ammo44cal,
+Ammo762x39,
+Ammo9x19,
 ```
