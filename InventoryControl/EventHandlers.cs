@@ -3,6 +3,7 @@
     using InventorySystem.Items;
     using InventorySystem.Items.Firearms;
     using InventorySystem.Items.Firearms.Attachments;
+    using InventorySystem.Items.Firearms.Modules;
     using MEC;
     using PlayerRoles;
     using PluginAPI.Core;
@@ -66,13 +67,19 @@
                                 if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(player.ReferenceHub, out var value) && value.TryGetValue(itemBase.ItemTypeId, out var value2))
                                     firearm.ApplyAttachmentsCode(value2, reValidate: true);
 
-                                FirearmStatusFlags firearmStatusFlags = FirearmStatusFlags.MagazineInserted;
-                                if (firearm.HasAdvantageFlag(AttachmentDescriptiveAdvantages.Flashlight))
-                                    firearmStatusFlags |= FirearmStatusFlags.FlashlightEnabled;
-
-                                firearm.Status = new FirearmStatus(firearm.AmmoManagerModule.MaxAmmo, firearmStatusFlags, firearm.GetCurrentAttachmentsCode());
+                                if (firearm.Modules.First(x => x is MagazineModule) is MagazineModule magazineModule)
+                                {
+                                    magazineModule.ServerInsertEmptyMagazine();
+                                    magazineModule.AmmoStored = magazineModule.AmmoMax;
+                                    magazineModule.ServerResyncData();
+                                }
                             }
                         }
+
+                    if (RoleInventory.Value?.Ammos?.Count > 0)
+                        foreach (KeyValuePair<ItemType, int> Ammo in RoleInventory.Value.Ammos)
+                            if (IsAmmo(Ammo.Key))
+                                player.AddAmmo(Ammo.Key, (ushort)Ammo.Value);
 
                     for (int ammo = 0; ammo < Ammos.Count; ammo++)
                         if (Ammos.ElementAt(ammo).Value > 0)
@@ -118,13 +125,19 @@
                                     if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(player.ReferenceHub, out var value) && value.TryGetValue(itemBase.ItemTypeId, out var value2))
                                         firearm.ApplyAttachmentsCode(value2, reValidate: true);
 
-                                    FirearmStatusFlags firearmStatusFlags = FirearmStatusFlags.MagazineInserted;
-                                    if (firearm.HasAdvantageFlag(AttachmentDescriptiveAdvantages.Flashlight))
-                                        firearmStatusFlags |= FirearmStatusFlags.FlashlightEnabled;
-
-                                    firearm.Status = new FirearmStatus(firearm.AmmoManagerModule.MaxAmmo, firearmStatusFlags, firearm.GetCurrentAttachmentsCode());
+                                    if (firearm.Modules.First(x => x is MagazineModule) is MagazineModule magazineModule)
+                                    {
+                                        magazineModule.ServerInsertEmptyMagazine();
+                                        magazineModule.AmmoStored = magazineModule.AmmoMax;
+                                        magazineModule.ServerResyncData();
+                                    }
                                 }
                             }
+
+                        if (RoleInventory.Value?.Ammos?.Count > 0)
+                            foreach (KeyValuePair<ItemType, int> Ammo in RoleInventory.Value.Ammos)
+                                if (IsAmmo(Ammo.Key))
+                                    player.AddAmmo(Ammo.Key, (ushort)Ammo.Value);
 
                         for (int ammo = 0; ammo < Ammos.Count; ammo++)
                             if (Ammos.ElementAt(ammo).Value > 0)
@@ -158,6 +171,13 @@
                 Log.Error("[InventoryControl] [Event: GetPlayerGroupName] " + e.ToString());
                 return string.Empty;
             }
+        }
+
+        public static bool IsAmmo(ItemType type)
+        {
+            if (type == ItemType.Ammo9x19 || type == ItemType.Ammo762x39 || type == ItemType.Ammo556x45 || type == ItemType.Ammo44cal || type == ItemType.Ammo12gauge)
+                return true;
+            return false;
         }
 
         private bool EqualsTo(UserGroup check, UserGroup player)

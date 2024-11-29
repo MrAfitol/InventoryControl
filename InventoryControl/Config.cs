@@ -6,7 +6,7 @@
 
     public class Config
     {
-        [Description("List of roles, their items, and chance (Do not add a role if you want its inventory to be normal)")]
+        [Description("Custom inventory list for the role. (Do not add a role to the list if you want to leave the role as a regular inventory)")]
         public Dictionary<string, RoleInventory> Inventory { get; set; } = new Dictionary<string, RoleInventory>()
         {
             {
@@ -48,7 +48,7 @@
             }
         };
 
-        [Description("List of ranks and their roles items and chances")]
+        [Description("Custom inventory list for players with a rank")]
         public Dictionary<string, Dictionary<string, RoleInventory>> InventoryRank { get; set; } = new Dictionary<string, Dictionary<string, RoleInventory>>()
         {
             {
@@ -65,6 +65,10 @@
                                 { ItemType.GunCOM18, 40 },
                                 { ItemType.Painkillers, 100 },
                                 { ItemType.Coin, 100 }
+                            },
+                            Ammos = new Dictionary<ItemType, int>()
+                            {
+                                { ItemType.Ammo9x19, 30 }
                             }
                         }
                     },
@@ -79,6 +83,10 @@
                                 { ItemType.SCP500, 70 },
                                 { ItemType.Flashlight, 100 },
                                 { ItemType.Coin, 90 }
+                            },
+                            Ammos = new Dictionary<ItemType, int>()
+                            {
+                                { ItemType.Ammo9x19, 60 }
                             }
                         }
                     }
@@ -92,5 +100,6 @@
         public RoleTypeId RoleTypeId { get; set; }
         public bool KeepItems { get; set; }
         public Dictionary<ItemType, int> Items { get; set; }
+        public Dictionary<ItemType, int> Ammos { get; set; }
     }
 }

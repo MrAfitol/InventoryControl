@@ -12,7 +12,7 @@
         public static Config Config;
 
         [PluginPriority(LoadPriority.Highest)]
-        [PluginEntryPoint("InventoryControl", "1.1.3", "A plugin that will allow you to control the inventory of various roles.", "MrAfitol")]
+        [PluginEntryPoint("InventoryControl", "1.1.4", "A plugin that will allow you to control the inventory of various roles.", "MrAfitol")]
         void LoadPlugin()
         {
             Instance = this;
