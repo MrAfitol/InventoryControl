@@ -1,9 +1,9 @@
-﻿namespace InventoryControl
-{
-    using PlayerRoles;
-    using System.Collections.Generic;
-    using System.ComponentModel;
+﻿using PlayerRoles;
+using System.Collections.Generic;
+using System.ComponentModel;
 
+namespace InventoryControl
+{
     public class Config
     {
         [Description("Custom inventory list for the role. (Do not add a role to the list if you want to leave the role as a regular inventory)")]

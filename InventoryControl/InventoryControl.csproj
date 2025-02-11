@@ -38,11 +38,11 @@
     <Reference Include="Assembly-CSharp-Publicized">
       <HintPath>$(SCP_Dependencies)\Assembly-CSharp-Publicized.dll</HintPath>
     </Reference>
+    <Reference Include="LabApi">
+      <HintPath>$(SCP_Dependencies)\LabApi.dll</HintPath>
+    </Reference>
     <Reference Include="Mirror">
       <HintPath>$(SCP_Dependencies)\Mirror.dll</HintPath>
-    </Reference>
-    <Reference Include="PluginAPI, Version=13.1.2.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\Northwood.PluginAPI.13.1.2\lib\net48\PluginAPI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -64,12 +64,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-    <Compile Include="EventHandlers.cs" />
+    <Compile Include="EventsHandler.cs" />
     <Compile Include="InventoryControl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
