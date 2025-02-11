@@ -22,8 +22,6 @@ namespace InventoryControl
             {
                 if (ev.Player == null || !Round.IsRoundStarted) return;
 
-                Logger.Debug("Work " + ev.Player.DisplayName);
-
                 Timing.CallDelayed(0.01f, () =>
                 {
                     if (InventoryControl.Instance.Config.InventoryRank?.Count > 0)
