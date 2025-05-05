@@ -6,6 +6,7 @@ using LabApi.Events.Arguments.PlayerEvents;
 using LabApi.Features.Console;
 using LabApi.Features.Wrappers;
 using MEC;
+using PlayerRoles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,13 +20,13 @@ namespace InventoryControl
         {
             try
             {
-                if (ev.Player == null || !Round.IsRoundStarted) return;
+                if (!Round.IsRoundStarted || ev.Player == null || (ev.SpawnFlags == RoleSpawnFlags.None || ev.SpawnFlags == RoleSpawnFlags.UseSpawnpoint)) return;
 
                 Timing.CallDelayed(0.01f, () =>
                 {
-                    if (InventoryControl.Instance.Config.InventoryRank?.Count > 0 && InventoryControl.Instance.Config.InventoryRank.ContainsKey(GetPlayerGroupName(ev.Player)))
-                        if (InventoryControl.Instance.Config.InventoryRank[GetPlayerGroupName(ev.Player)].Count(x => x.Value.RoleTypeId == ev.NewRole.RoleTypeId) > 0)
-                            SetPlayerInventory(ev.Player, InventoryControl.Instance.Config.InventoryRank[ServerStatic.PermissionsHandler.Members[ev.Player.UserId]].Where(x => x.Value.RoleTypeId == ev.NewRole.RoleTypeId).ToList().RandomItem().Value);
+                    if (!ev.Player.IsDummy && InventoryControl.Instance.Config.InventoryRank?.Count > 0 && InventoryControl.Instance.Config.InventoryRank.ContainsKey(GetPlayerGroupName(ev.Player)))
+                        if (InventoryControl.Instance.Config.InventoryRank[GetPlayerGroupName(ev.Player)]?.Count(x => x.Value.RoleTypeId == ev.NewRole.RoleTypeId) > 0)
+                        { SetPlayerInventory(ev.Player, InventoryControl.Instance.Config.InventoryRank[GetPlayerGroupName(ev.Player)].Where(x => x.Value.RoleTypeId == ev.NewRole.RoleTypeId).ToList().RandomItem().Value); return; }
                     if (InventoryControl.Instance.Config.Inventory?.Count(x => x.Value.RoleTypeId == ev.NewRole.RoleTypeId) > 0)
                         SetPlayerInventory(ev.Player, InventoryControl.Instance.Config.Inventory.Where(x => x.Value.RoleTypeId == ev.NewRole.RoleTypeId).ToList().RandomItem().Value);
                 });
@@ -40,44 +41,40 @@ namespace InventoryControl
         {
             try
             {
-                Dictionary<ItemType, ushort> Ammos = new Dictionary<ItemType, ushort>();
+                Dictionary<ItemType, ushort> Ammos = new Dictionary<ItemType, ushort>(player.Ammo);
+                if (!roleInventory.KeepItems && !player.IsWithoutItems) player.ClearInventory();
+                else player.ClearInventory(true, false);
 
-                foreach (KeyValuePair<ItemType, ushort> item in player.ReferenceHub.inventory.UserInventory.ReserveAmmo)
-                    Ammos.Add(item.Key, item.Value);
-
-                for (int ammo = 0; ammo < player.ReferenceHub.inventory.UserInventory.ReserveAmmo.Count; ammo++)
-                    player.SetAmmo(player.ReferenceHub.inventory.UserInventory.ReserveAmmo.ElementAt(ammo).Key, 0);
-
-                if (!roleInventory.KeepItems && player.Inventory.UserInventory.Items.Count > 0)
-                    player.ClearInventory(false);
-
-                foreach (KeyValuePair<ItemType, int> Item in roleInventory.Items)
-                    if (Item.Value >= Random.Range(0, 101))
-                    {
-                        ItemBase itemBase = player.AddItem(Item.Key).Base;
-
-                        if (itemBase is Firearm firearm)
+                Timing.CallDelayed(0.01f, () =>
+                {
+                    foreach (KeyValuePair<ItemType, int> Item in roleInventory.Items)
+                        if (Item.Value >= Random.Range(0, 101))
                         {
-                            if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(player.ReferenceHub, out var value) && value.TryGetValue(itemBase.ItemTypeId, out var value2))
-                                firearm.ApplyAttachmentsCode(value2, reValidate: true);
+                            ItemBase itemBase = player.AddItem(Item.Key).Base;
 
-                            if (firearm.Modules.First(x => x is MagazineModule) is MagazineModule magazineModule)
+                            if (itemBase is Firearm firearm)
                             {
-                                magazineModule.ServerInsertEmptyMagazine();
-                                magazineModule.AmmoStored = magazineModule.AmmoMax;
-                                magazineModule.ServerResyncData();
+                                if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(player.ReferenceHub, out var value) && value.TryGetValue(itemBase.ItemTypeId, out var value2))
+                                    firearm.ApplyAttachmentsCode(value2, reValidate: true);
+
+                                if (firearm.Modules.First(x => x is MagazineModule) is MagazineModule magazineModule)
+                                {
+                                    magazineModule.ServerInsertEmptyMagazine();
+                                    magazineModule.AmmoStored = magazineModule.AmmoMax;
+                                    magazineModule.ServerResyncData();
+                                }
                             }
                         }
-                    }
 
-                if (roleInventory?.Ammos?.Count > 0)
-                    foreach (KeyValuePair<ItemType, int> Ammo in roleInventory.Ammos)
-                        if (IsAmmo(Ammo.Key))
-                            player.AddAmmo(Ammo.Key, (ushort)Ammo.Value);
+                    if (roleInventory.Ammos?.Count > 0)
+                        foreach (KeyValuePair<ItemType, int> Ammo in roleInventory.Ammos)
+                            if (IsAmmo(Ammo.Key)) player.AddAmmo(Ammo.Key, (ushort)Ammo.Value);
 
-                for (int ammo = 0; ammo < Ammos.Count; ammo++)
-                    if (Ammos.ElementAt(ammo).Value > 0)
-                        player.SetAmmo(Ammos.ElementAt(ammo).Key, Ammos.ElementAt(ammo).Value);
+                    if (Ammos.Count > 0)
+                        foreach (KeyValuePair<ItemType, ushort> ammo in Ammos)
+                            player.SetAmmo(ammo.Key, ammo.Value);
+                });
+
             }
             catch (Exception e)
             {
@@ -89,16 +86,12 @@ namespace InventoryControl
         {
             try
             {
-                if (player.UserId == null) return string.Empty;
+                if (player.UserId == null || player.IsDummy) return string.Empty;
 
                 if (ServerStatic.PermissionsHandler.Members.ContainsKey(player.UserId))
-                {
                     return ServerStatic.PermissionsHandler.Members[player.UserId];
-                }
                 else
-                {
-                    return player.ReferenceHub.serverRoles.Group != null ? ServerStatic.PermissionsHandler.Groups.FirstOrDefault(g => EqualsTo(g.Value, player.ReferenceHub.serverRoles.Group)).Key : string.Empty;
-                }
+                    return player.UserGroup != null ? ServerStatic.PermissionsHandler.Groups.First(g => EqualsTo(g.Value, player.UserGroup)).Key : string.Empty;
             }
             catch (Exception e)
             {
