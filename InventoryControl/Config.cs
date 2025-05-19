@@ -99,6 +99,7 @@ namespace InventoryControl
     {
         public RoleTypeId RoleTypeId { get; set; }
         public bool KeepItems { get; set; }
+        public bool KeepAmmos { get; set; }
         public Dictionary<ItemType, int> Items { get; set; }
         public Dictionary<ItemType, int> Ammos { get; set; }
     }

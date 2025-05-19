@@ -15,7 +15,7 @@ namespace InventoryControl
 
         public override string Author { get; } = "MrAfitol";
 
-        public override Version Version { get; } = new Version(1, 2, 2);
+        public override Version Version { get; } = new Version(1, 2, 3);
 
         public override Version RequiredApiVersion { get; } = new Version(LabApiProperties.CompiledVersion);
 

@@ -33,7 +33,7 @@ namespace InventoryControl
             }
             catch (Exception e)
             {
-                Logger.Error("[InventoryControl] [Event: OnPlayerChangedRole] " + e.ToString());
+                Logger.Error("[Event: OnPlayerChangedRole] " + e.ToString());
             }
         }
 
@@ -47,38 +47,39 @@ namespace InventoryControl
 
                 Timing.CallDelayed(0.01f, () =>
                 {
-                    foreach (KeyValuePair<ItemType, int> Item in roleInventory.Items)
-                        if (Item.Value >= Random.Range(0, 101))
-                        {
-                            ItemBase itemBase = player.AddItem(Item.Key).Base;
-
-                            if (itemBase is Firearm firearm)
+                    if (roleInventory.Items?.Count > 0)
+                        foreach (KeyValuePair<ItemType, int> Item in roleInventory.Items)
+                            if (Item.Value >= Random.Range(0, 101))
                             {
-                                if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(player.ReferenceHub, out var value) && value.TryGetValue(itemBase.ItemTypeId, out var value2))
-                                    firearm.ApplyAttachmentsCode(value2, reValidate: true);
+                                ItemBase itemBase = player.AddItem(Item.Key).Base;
 
-                                if (firearm.Modules.First(x => x is MagazineModule) is MagazineModule magazineModule)
+                                if (itemBase is Firearm firearm)
                                 {
-                                    magazineModule.ServerInsertEmptyMagazine();
-                                    magazineModule.AmmoStored = magazineModule.AmmoMax;
-                                    magazineModule.ServerResyncData();
+                                    if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(player.ReferenceHub, out var value) && value.TryGetValue(itemBase.ItemTypeId, out var value2))
+                                        firearm.ApplyAttachmentsCode(value2, reValidate: true);
+
+                                    if (firearm.Modules.First(x => x is MagazineModule) is MagazineModule magazineModule)
+                                    {
+                                        magazineModule.ServerInsertEmptyMagazine();
+                                        magazineModule.AmmoStored = magazineModule.AmmoMax;
+                                        magazineModule.ServerResyncData();
+                                    }
                                 }
                             }
-                        }
+
+                    if (roleInventory.KeepAmmos && Ammos?.Count > 0)
+                        foreach (KeyValuePair<ItemType, ushort> ammo in Ammos)
+                            player.SetAmmo(ammo.Key, ammo.Value);
 
                     if (roleInventory.Ammos?.Count > 0)
                         foreach (KeyValuePair<ItemType, int> Ammo in roleInventory.Ammos)
                             if (IsAmmo(Ammo.Key)) player.AddAmmo(Ammo.Key, (ushort)Ammo.Value);
-
-                    if (Ammos.Count > 0)
-                        foreach (KeyValuePair<ItemType, ushort> ammo in Ammos)
-                            player.SetAmmo(ammo.Key, ammo.Value);
                 });
 
             }
             catch (Exception e)
             {
-                Logger.Error("[InventoryControl] [Event: SetPlayerInventory] " + e.ToString());
+                Logger.Error("[Event: SetPlayerInventory] " + e.ToString());
             }
         }
 
